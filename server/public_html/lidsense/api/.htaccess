@@ -1,0 +1,5 @@
+# Block direct access to secrets and helpers
+<FilesMatch "^(config\.php|config\.sample\.php|lib\.php|schema\.sql)$">
+  Require all denied
+</FilesMatch>
+Options -Indexes

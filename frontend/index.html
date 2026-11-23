@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LidSense Monitor</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/chart.umd.min.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark" aria-hidden="true"></span>LidSense</div>
+  <div class="topbar-right">
+    <select id="device" aria-label="Device" hidden></select>
+    <span id="conn" class="pill">connecting…</span>
+    <span id="source" class="muted small"></span>
+    <a id="logout" class="small" href="logout.php" hidden>Sign out</a>
+  </div>
+</header>
+
+<div id="alert" class="alert" role="alert" hidden>
+  <strong id="alert-title">Alert</strong><span id="alert-msg"></span>
+</div>
+
+<main class="grid">
+  <section class="card hero" aria-live="polite">
+    <div class="hero-top">
+      <span class="label">Hydration status</span>
+      <span id="quality" class="chip"></span>
+    </div>
+    <div id="status" class="status">—</div>
+    <div id="state-msg" class="muted"></div>
+    <dl class="kpis">
+      <div><dt>S11 at resonance</dt><dd><span id="k-s11">—</span><small> dB</small></dd></div>
+      <div><dt>Resonant frequency</dt><dd><span id="k-freq">—</span><small> GHz</small></dd></div>
+      <div><dt>vs. baseline</dt><dd><span id="k-delta">—</span><small> dB</small></dd></div>
+    </dl>
+    <div class="hero-foot muted small">
+      <span>Subject: <b id="k-subject">—</b></span>
+      <span>Updated <b id="k-time">—</b></span>
+    </div>
+  </section>
+
+  <section class="card controls" id="controls" hidden>
+    <h2>Session</h2>
+    <form id="subject-form" class="row">
+      <input id="subject" maxlength="32" placeholder="Participant code, e.g. P07" aria-label="Participant code">
+      <button class="btn" type="submit">Set</button>
+    </form>
+    <div class="btn-grid">
+      <button class="btn primary" data-action="baseline">Capture baseline</button>
+      <button class="btn" data-action="measure">Measure now</button>
+      <button class="btn" data-action="free_air">Record free-air</button>
+      <button class="btn ghost" data-action="clear_baseline">Clear baseline</button>
+    </div>
+    <p id="baseline-info" class="muted small"></p>
+    <p class="muted small">Free-air: lift the sensor off the skin first. Baseline: wrist on the sensor, sit still, well-hydrated state.</p>
+  </section>
+
+  <section class="card side" id="side">
+    <h2>Device</h2>
+    <dl class="facts">
+      <div><dt>Return loss</dt><dd id="f-rl">—</dd></div>
+      <div><dt>Bandwidth / Q</dt><dd id="f-bw">—</dd></div>
+      <div><dt>Baseline</dt><dd id="f-base">—</dd></div>
+      <div><dt>Calibration</dt><dd id="f-cal">—</dd></div>
+      <div><dt>Waiting to upload</dt><dd id="f-outbox">—</dd></div>
+    </dl>
+  </section>
+
+  <section class="card wide">
+    <div class="card-head">
+      <h2>Trend</h2>
+      <div class="seg" id="metric" role="tablist" aria-label="Metric">
+        <button data-m="s11_db" class="on">S11 (dB)</button>
+        <button data-m="delta_db">vs. baseline</button>
+        <button data-m="resonant_freq_hz">Frequency</button>
+      </div>
+      <div class="seg" id="range" role="tablist" aria-label="Time range">
+        <button data-r="1h">1h</button><button data-r="6h" class="on">6h</button>
+        <button data-r="24h">24h</button><button data-r="7d">7d</button><button data-r="30d">30d</button>
+      </div>
+    </div>
+    <div class="chart-box"><canvas id="trend" aria-label="Trend chart"></canvas></div>
+    <div class="legend small">
+      <span><i class="sw hyper"></i>Hyperhydrated</span><span><i class="sw eu"></i>Euhydrated</span>
+      <span><i class="sw hypo"></i>Hypohydrated</span><span><i class="sw bad"></i>Unreliable reading</span>
+    </div>
+  </section>
+
+  <section class="card half">
+    <div class="card-head"><h2>Latest sweep</h2><span id="sweep-time" class="muted small"></span></div>
+    <div class="chart-box short"><canvas id="sweep" aria-label="S11 versus frequency"></canvas></div>
+  </section>
+
+  <section class="card half">
+    <div class="card-head"><h2>Alerts</h2></div>
+    <ul id="alerts" class="alerts"><li class="muted">No alerts yet.</li></ul>
+  </section>
+
+  <section class="card wide">
+    <div class="card-head">
+      <h2>Recent readings</h2>
+      <a id="csv" class="btn small-btn" href="#">Download CSV</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Time</th><th>Subject</th><th>Status</th><th class="num">S11 dB</th>
+          <th class="num">GHz</th><th class="num">Δ dB</th><th>Quality</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<footer class="muted small foot">Research prototype — not a medical device. Thresholds from the LidSense thesis (Table 6.3).</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

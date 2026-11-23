@@ -1,0 +1,63 @@
+# LidSense hydration monitor - Raspberry Pi configuration
+# Copy to /etc/lidsense/config.yaml (install.sh does this) and edit.
+
+device_id: lidsense-01            # must match the device row created on the server
+device_name: "LidSense prototype 1"
+serial_port: /dev/nanovna         # udev symlink created by install.sh (fallback: /dev/ttyACM0)
+simulate: false                   # true = built-in simulator, no NanoVNA needed
+
+# Sweep grid. MUST match the grid the calibration was taken on.
+# The existing calibration_*.npy files were taken by ghg.py on 1.5-3.0 GHz, 101 points.
+# Recommended after recalibrating: 2.0-2.5 GHz, 201 points (2.5 MHz steps instead of 15 MHz).
+sweep:
+  start_hz: 1.5e+9
+  stop_hz: 3.0e+9
+  points: 101
+  avg: 1                          # NanoVNA hardware averaging per point
+
+sweeps_per_reading: 3             # thesis 6.6.1: three quick sweeps per measurement
+interval_s: 10                    # one reading every 10 s
+search_band_hz: [2.0e+9, 2.5e+9]    # only look for the resonance here (sensor ~2.22-2.24 GHz)
+smooth_window: 5                  # moving average, thesis 6.5.6
+
+quality:
+  max_spread_db: 1.5              # >1.5 dB RL spread between the 3 sweeps = movement
+  min_contact_rms_db: 2.0         # trace within 2 dB RMS of the free-air trace = not on skin
+  store_no_contact: false
+
+classification:                   # thesis Table 6.3 / section 6.6.2
+  dehydrated_label: Hypohydrated
+  hyperhydrated_label: Hyperhydrated
+  bands:                          # first band whose limit S11 is below wins
+    - {label: Hyperhydrated, below_s11_db: -22}
+    - {label: Euhydrated,    below_s11_db: -15}
+    - {label: Hypohydrated}
+
+baseline:
+  n_readings: 5                   # good readings averaged when "Capture baseline" is pressed
+  dehydration_sign: -1            # -1: return loss falls when drier (matches thresholds above)
+                                  # +1: return loss rises when drier (see README "Direction")
+
+alerts:
+  consecutive: 3                  # readings in a row before an alert is raised or cleared
+  baseline_delta_db: 3.0          # thesis: a 3-5 dB shift marks euhydrated -> hypohydrated
+  alert_on_hyper: true
+  bad_quality_limit: 6            # unreliable readings in a row -> "check contact" alert
+
+cloud:
+  enabled: true
+  ingest_url: https://YOUR-DOMAIN/lidsense/api/ingest.php
+  api_key_env: LIDSENSE_API_KEY   # set in /etc/lidsense/secrets.env, never in this file
+  period_s: 5
+  upload_sweep_every: 6           # send the full S11 trace with every 6th reading (~1/min)
+
+local_ui:
+  enabled: true
+  host: 127.0.0.1                 # touchscreen only; use 0.0.0.0 to open on your LAN
+  port: 8080
+  enable_controls: true
+
+paths:
+  data_dir: /var/lib/lidsense
+  calibration_dir: /opt/lidsense/pi/data
+  frontend_dir: /opt/lidsense/frontend

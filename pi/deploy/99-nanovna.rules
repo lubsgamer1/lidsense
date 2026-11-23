@@ -1,0 +1,2 @@
+# NanoVNA V2 (S-A-A-2 / V2Plus): stable name /dev/nanovna, readable by the dialout group
+SUBSYSTEM=="tty", ATTRS{idVendor}=="04b4", ATTRS{idProduct}=="0008", SYMLINK+="nanovna", GROUP="dialout", MODE="0660"

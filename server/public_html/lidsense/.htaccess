@@ -1,0 +1,6 @@
+Options -Indexes
+DirectoryIndex index.html
+# Force HTTPS (health data + device keys must not travel in clear text)
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

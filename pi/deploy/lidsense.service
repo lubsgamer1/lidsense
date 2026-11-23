@@ -1,0 +1,16 @@
+[Unit]
+Description=LidSense hydration monitor (NanoVNA V2 + cloud upload + touchscreen UI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=lidsense
+Group=lidsense
+WorkingDirectory=/opt/lidsense/pi
+EnvironmentFile=/etc/lidsense/secrets.env
+ExecStart=/usr/bin/python3 -m lidsense.service --config /etc/lidsense/config.yaml
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,8 @@
+# Raspberry Pi OS Bookworm (Python 3.11) on Raspberry Pi 5
+# numpy/flask/yaml/requests come from apt (python3-numpy etc.) via install.sh; these
+# pins are for a plain virtualenv.
+numpy>=1.24
+pyserial>=3.5
+flask>=2.3
+requests>=2.31
+PyYAML>=6.0
